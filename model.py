@@ -4,8 +4,9 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
-from sklearn.metrics import classification_report, accuracy_score
+from sklearn.preprocessing import StandardScaler, OneHotEncoder, PolynomialFeatures
+from sklearn.metrics import classification_report, accuracy_score, confusion_matrix, ConfusionMatrixDisplay
+import matplotlib.pyplot as plt
 
 def load_data():
     # 1. Load the dataset
@@ -30,6 +31,7 @@ def build_model():
    
     numeric_transformer = Pipeline(steps=[
         ('imputer', SimpleImputer(strategy='median')),
+        ("poly", PolynomialFeatures(degree=4, include_bias=False)),
         ('scaler', StandardScaler())
     ])
 
@@ -65,5 +67,9 @@ if __name__ == "__main__":
     print(f"Accuracy: {accuracy_score(y_test, y_pred):.2%}")
     print("\nDetailed Performance Report:")
     print(classification_report(y_test, y_pred))
-    # confusion_matrix = confusion_matrix(y_test, y_pred)
+    conf_matrix = confusion_matrix(y_test, y_pred)
+    display = ConfusionMatrixDisplay(confusion_matrix=conf_matrix, display_labels=[0,1])
+    display.plot()
+    plt.show()
+    
 
