@@ -5,8 +5,8 @@ from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder, PolynomialFeatures
-from sklearn.metrics import classification_report, accuracy_score, confusion_matrix, ConfusionMatrixDisplay
-import matplotlib.pyplot as plt
+from sklearn.metrics import classification_report, accuracy_score
+import joblib
 
 def load_data():
     # 1. Load the dataset
@@ -64,12 +64,7 @@ if __name__ == "__main__":
     
     
     y_pred = model.predict(X_test)
-    print(f"Accuracy: {accuracy_score(y_test, y_pred):.2%}")
-    print("\nDetailed Performance Report:")
-    print(classification_report(y_test, y_pred))
-    conf_matrix = confusion_matrix(y_test, y_pred)
-    display = ConfusionMatrixDisplay(confusion_matrix=conf_matrix, display_labels=[0,1])
-    display.plot()
-    plt.show()
+    # Dump model into the backend for later use in the API
+    joblib.dump(model, 'melanoma_model.pkl')
     
 
