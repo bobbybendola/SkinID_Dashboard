@@ -1,31 +1,35 @@
 import { useState } from 'react'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000'
 
 export default function usePredict() {
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
+  // ⚡ Updated predict to send JSON instead of FormData
   const predict = async (file, measurements, patientInfo) => {
     setLoading(true)
     setError(null)
     setResult(null)
 
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('width_px', measurements.width_px)
-    formData.append('height_px', measurements.height_px)
-    if (measurements.width_mm) formData.append('width_mm', measurements.width_mm)
-    if (measurements.height_mm) formData.append('height_mm', measurements.height_mm)
-    formData.append('sex', patientInfo.sex)
-    formData.append('age', patientInfo.age)
-    formData.append('anatom_site', patientInfo.location)
-
     try {
+      // ✅ Build JSON exactly like Flask expects
+      const payload = {
+        sex: patientInfo.sex,
+        age_approx: Number(patientInfo.age),
+        anatom_site_general_challenge: patientInfo.location || "unknown",
+        width: measurements.width_mm ?? measurements.width_px,
+        height: measurements.height_mm ?? measurements.height_px
+      }
+
+      // ⚡ Call backend with JSON
       const res = await fetch(`${API_URL}/predict`, {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
       })
 
       if (!res.ok) {

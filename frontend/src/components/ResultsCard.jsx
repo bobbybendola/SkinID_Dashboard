@@ -30,18 +30,21 @@ export default function ResultsCard({ result, loading, error, preview, measureme
 
   if (!result) return null
 
-  const { malignancy, identity, top_3 } = result
+  // ✅ Map prediction number to text
+  const predictionText = result.prediction === 1 ? "Malignant" : "Benign"
+  const confidencePercent = (result.confidence * 100).toFixed(2)
 
   return (
     <div className="space-y-4">
-      {/* Main result card */}
       <div className="glass-strong rounded-2xl p-6 sm:p-8">
         <div className="flex flex-col sm:flex-row gap-6">
           {/* Image + info sidebar */}
           <div className="sm:w-52 flex-shrink-0 space-y-3">
-            <div className="rounded-xl overflow-hidden border border-white/10">
-              <img src={preview} alt="Analyzed lesion" className="w-full h-auto" />
-            </div>
+            {preview && (
+              <div className="rounded-xl overflow-hidden border border-white/10">
+                <img src={preview} alt="Analyzed lesion" className="w-full h-auto" />
+              </div>
+            )}
             <div className="grid grid-cols-2 gap-2 text-center text-xs">
               <div className="bg-white/5 rounded-lg p-2">
                 <span className="text-white/40">Width</span>
@@ -61,70 +64,11 @@ export default function ResultsCard({ result, loading, error, preview, measureme
 
           {/* Results */}
           <div className="flex-1 space-y-5">
-            {/* Identity */}
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center">
-                  <svg className="w-4 h-4 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                  </svg>
-                </div>
-                <h4 className="text-sm font-medium text-white/50 uppercase tracking-wider">Identification</h4>
-              </div>
-              <h3 className="text-xl font-bold mb-1">{identity.name}</h3>
-              <div className="flex items-center gap-2 mb-3">
-                <div className="h-1.5 flex-1 max-w-32 bg-white/10 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-purple-500 to-indigo-400 rounded-full transition-all duration-1000"
-                    style={{ width: `${(identity.confidence * 100).toFixed(0)}%` }}
-                  />
-                </div>
-                <span className="text-sm font-semibold text-purple-300">{(identity.confidence * 100).toFixed(1)}%</span>
-              </div>
-              <p className="text-sm text-white/60 leading-relaxed">{identity.description}</p>
-              {identity.clinical_note && (
-                <p className="mt-2 text-xs text-white/30 italic">{identity.clinical_note}</p>
-              )}
+            <div className="glass rounded-xl p-4 text-center">
+              <h3 className="text-xl font-bold mb-2">Prediction</h3>
+              <p className="text-2xl font-semibold text-purple-300">{predictionText}</p>
+              <p className="text-white/60 mt-1">Confidence: {confidencePercent}%</p>
             </div>
-
-            {/* Risk assessment */}
-            <div className="glass rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center">
-                  <svg className="w-4 h-4 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" />
-                  </svg>
-                </div>
-                <h4 className="text-sm font-medium text-white/50 uppercase tracking-wider">Risk Assessment</h4>
-              </div>
-              <RiskBadge riskLevel={malignancy.risk_level} probability={malignancy.probability} />
-              <p className="text-sm text-white/60 mt-3">{malignancy.recommendation}</p>
-            </div>
-
-            {/* Top 3 */}
-            {top_3 && top_3.length > 1 && (
-              <div>
-                <h4 className="text-xs font-medium text-white/40 uppercase tracking-wider mb-2">Other Possibilities</h4>
-                <div className="space-y-2">
-                  {top_3.slice(1).map((item, i) => (
-                    <div key={i} className="flex items-center gap-3 bg-white/[0.03] rounded-lg p-2.5">
-                      <div className="flex-1">
-                        <span className="text-sm text-white/70">{item.name}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-16 h-1 bg-white/10 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-white/25 rounded-full"
-                            style={{ width: `${(item.confidence * 100).toFixed(0)}%` }}
-                          />
-                        </div>
-                        <span className="text-xs text-white/40 w-10 text-right">{(item.confidence * 100).toFixed(1)}%</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
