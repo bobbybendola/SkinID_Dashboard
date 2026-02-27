@@ -14,7 +14,7 @@ export default function usePredict() {
     setResult(null)
 
     try {
-      // ✅ Build JSON exactly like Flask expects
+  
       const payload = {
         sex: patientInfo.sex,
         age_approx: Number(patientInfo.age),
